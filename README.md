@@ -12,7 +12,7 @@ MCP（Model Context Protocol）を「作る側」と「使う側」の両方か�
 
 ![MCP の全体像。作る側は experiments/01-echo-stdio で、簡易クライアントと自作サーバーが stdio でつながり、サーバーは echo ツールと example://readme リソースを公開する。使う側は .mcp.json を Claude Code（承認が必要）と GitHub Copilot CLI（フォルダの信頼・Copilot ポリシー）が読み、どちらも playwright（stdio・認証不要）、atlassian（リモート HTTP・OAuth）、drawio（リモート HTTP・認証不要）に同じ設定で接続する](docs/images/mcp-overview.drawio.svg)
 
-図は draw.io の図データを埋め込んだ SVG（`docs/images/mcp-overview.drawio.svg`）。draw.io（デスクトップ版・Web 版）で直接開いて編集し、同じファイルに保存し直す。PNG などの書き出しを別に置かない（表示用と編集用がずれるため）。
+矢印は流れる向きにアニメーションする。編集の仕方は「[図を作り直す](#図を作り直す)」を参照。
 
 ```text
 .
@@ -22,7 +22,7 @@ MCP（Model Context Protocol）を「作る側」と「使う側」の両方か�
 ├── docs/                   リポジトリ全体の仕様書（README.md が目次）
 ├── experiments/            MCP サーバーの実験（1 実験 1 フォルダ）
 │   └── 01-echo-stdio/      最初に作った最小構成のサーバー（stdio / echo / 固定リソース）
-└── scripts/                検査スクリプト（markdownlint / shellcheck / 秘匿ファイル検出）
+└── scripts/                検査スクリプト（markdownlint / shellcheck / 秘匿ファイル検出）と図の生成スクリプト
 ```
 
 ## セットアップ
@@ -44,6 +44,10 @@ npm install
 npm run build
 npm run client   # 簡易クライアントから echo ツールと example://readme リソースを呼び出す
 ```
+
+このとき簡易クライアントと自作サーバーの間では、次の順に JSON-RPC のメッセージが標準入出力を流れる。
+
+![自作サーバー 01-echo-stdio の JSON-RPC のやりとりのアニメーション。1. クライアントが initialize を送る。2. サーバーが capabilities（tools / resources）を返す。3. クライアントが notifications/initialized を送る（通知なので応答はない）。4. クライアントが tools/list を送る。5. サーバーが echo ツールの一覧を返す。6. クライアントが tools/call で echo に text "hello" を渡す。7. サーバーが content "hello" を返す](docs/images/mcp-jsonrpc-stdio.svg)
 
 ### 新しい実験を追加する
 
@@ -76,6 +80,10 @@ npm run client   # 簡易クライアントから echo ツールと example://re
 - Copilot CLI で実行するには、GitHub の Copilot 設定（<https://github.com/settings/copilot>）で MCP サーバーの利用が許可されている必要がある。許可されていないと、設定は読まれても `Third-party MCP servers are disabled by your organization's Copilot policy` で実行が拒否される。
 - Codex は `.mcp.json` を読まない（設定の形式が別）。
 
+OAuth が必要なリモートのサーバー（`atlassian`）には、次の流れで接続する。
+
+![Atlassian MCP に OAuth で接続するまでのアニメーション。1. クライアントがトークンなしで initialize を送る。2. MCP サーバーが 401 と WWW-Authenticate の resource_metadata を返す。3. クライアントが oauth-protected-resource を取得する。4. 認可サーバーの場所が返る。5. クライアントが PKCE 付きでブラウザに認可画面を開く。6. 利用者がログインして承認する。7. 認可コードがクライアントに戻る。8. クライアントが認可コードと code_verifier でトークンを要求する。9. アクセストークンが返る。10. クライアントが Bearer トークン付きで initialize を送る。11. 200 で接続が完了する](docs/images/mcp-oauth-atlassian.svg)
+
 ### 検査
 
 ```bash
@@ -83,6 +91,18 @@ npm run client   # 簡易クライアントから echo ツールと example://re
 ./scripts/lint-shell.sh           # シェルスクリプトの検査
 ./scripts/check-secret-files.sh   # 鍵・.env などの混入検出
 ```
+
+### 図を作り直す
+
+`docs/images/` の図は、種類によって作り直し方が違う。どれも PNG などの書き出しを別に置かない（表示用と編集用がずれるため）。
+
+| 図 | 正本 | 作り直し方 |
+|---|---|---|
+| `mcp-overview.drawio.svg`（全体図） | SVG 自身（draw.io の図データを埋め込んでいる） | draw.io（デスクトップ版・Web 版）で直接開いて編集し、同じファイルに保存し直す。矢印の動きは線のスタイルの `flowAnimation=1` |
+| `mcp-jsonrpc-stdio.svg` / `mcp-oauth-atlassian.svg`（通信の流れ） | `scripts/gen-sequence-svgs.py` | スクリプトの `SEQUENCES` を直して `python3 scripts/gen-sequence-svgs.py` で再生成する。SVG を直接編集しない。`--check` を付けると、コミット済みの SVG が生成結果と一致するかを確かめる |
+
+- アニメーションは CSS だけで動く（`<script>` を使わない）ため、GitHub の README の画像としてもそのまま動く。
+- 通信の流れの 2 枚は、OS の「視差効果を減らす」設定（`prefers-reduced-motion`）で静止画になる。全体図は draw.io の書き出しがこの設定に対応していないため、設定にかかわらず動く。
 
 ## AI エージェント向けルール
 
