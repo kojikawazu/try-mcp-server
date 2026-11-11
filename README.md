@@ -12,6 +12,7 @@ MCP（Model Context Protocol）サーバーを TypeScript/Node.js で自作し�
 .
 ├── CLAUDE.md / AGENTS.md   AI エージェント向けの入口
 ├── .claude/rules/          開発ルールの正本
+├── .mcp.json               MCP クライアント（Claude Code / Copilot CLI）向けのサーバー設定
 ├── docs/                   リポジトリ全体の仕様書（README.md が目次）
 ├── experiments/            MCP サーバーの実験（1 実験 1 フォルダ）
 │   └── 01-echo-stdio/      最初に作った最小構成のサーバー（stdio / echo / 固定リソース）
@@ -43,6 +44,20 @@ npm run client   # 簡易クライアントから echo ツールと example://re
 1. `experiments/NN-<テーマ>/` を作る（連番は既存の最大値 + 1）
 2. その中に `README.md`（目的・実行手順・確認できること）とコードを置く
 3. [experiments/README.md](experiments/README.md) の一覧に 1 行追加する
+
+### MCP クライアントから既製のサーバーを使う（Playwright MCP）
+
+リポジトリ直下の `.mcp.json` に、[Playwright MCP](https://github.com/microsoft/playwright-mcp)（`@playwright/mcp`、版固定）を `playwright` という名前で登録している。同じファイルを次の 2 つのクライアントが読む。
+
+| クライアント | `.mcp.json` の扱い | 確認コマンド |
+|---|---|---|
+| Claude Code | project スコープ。初回は使用の承認を求められる。承認後は、同名のサーバーがユーザー設定にあってもこのリポジトリ内では `.mcp.json` 側が優先される（**承認前はユーザー設定側が使われる**） | `claude mcp get playwright`（`Scope: Project config` と表示される）。Claude Code 内では `/mcp` |
+| GitHub Copilot CLI | Workspace 設定 | `copilot mcp get playwright`（`Source: Workspace` と表示される） |
+
+- 版を上げるときは `.mcp.json` の `@playwright/mcp@<版>` を書き換える。`@latest` にすると起動のたびに版が変わり、挙動が再現しなくなるため使わない。
+- スナップショットやスクリーンショットは `.playwright-mcp/` に出力される（`.gitignore` 済み）。
+- Copilot CLI で実行するには、GitHub の Copilot 設定（<https://github.com/settings/copilot>）で MCP サーバーの利用が許可されている必要がある。許可されていないと、設定は読まれても `Third-party MCP servers are disabled by your organization's Copilot policy` で実行が拒否される。
+- Codex は `.mcp.json` を読まない（設定の形式が別）。
 
 ### 検査
 
