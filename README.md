@@ -10,6 +10,10 @@ MCP（Model Context Protocol）を「作る側」と「使う側」の両方か�
 - **使う**: 既製の MCP サーバーを `.mcp.json` に登録し、Claude Code と GitHub Copilot CLI の両方から同じ設定で動かす（下記「MCP クライアントから既製のサーバーを使う」）
 - claude.ai のコネクタやユーザー設定で既に使える MCP でも、`.mcp.json` に載せる。確かめたいのは「リポジトリの設定だけで、どのクライアントからも再現できるか」であるため。理由の正本は [docs/01-business-requirements.md](docs/01-business-requirements.md#主要な決定事項)
 
+![MCP の全体像。作る側は experiments/01-echo-stdio で、簡易クライアントと自作サーバーが stdio でつながり、サーバーは echo ツールと example://readme リソースを公開する。使う側は .mcp.json を Claude Code（承認が必要）と GitHub Copilot CLI（フォルダの信頼・Copilot ポリシー）が読み、どちらも playwright（stdio・認証不要）、atlassian（リモート HTTP・OAuth）、drawio（リモート HTTP・認証不要）に同じ設定で接続する](docs/images/mcp-overview.drawio.svg)
+
+図は draw.io の図データを埋め込んだ SVG（`docs/images/mcp-overview.drawio.svg`）。draw.io（デスクトップ版・Web 版）で直接開いて編集し、同じファイルに保存し直す。PNG などの書き出しを別に置かない（表示用と編集用がずれるため）。
+
 ```text
 .
 ├── CLAUDE.md / AGENTS.md   AI エージェント向けの入口
