@@ -4,6 +4,22 @@
 
 新しいエントリはこの見出しの直下に追記する（新しいものが上）。
 
+## 2026-11-11 .mcp.json を置いても、Claude Code は承認するまでユーザー設定の同名サーバーを使い続けた
+
+### 概要
+
+Playwright MCP を `.mcp.json`（project スコープ）に版固定で登録し、「同名ならユーザー設定より project が優先される」と説明した。実際には、`.mcp.json` のサーバーが未承認の間はユーザー設定（`@latest`）が使われ続けており、説明は承認後にしか成り立たなかった。
+
+### 詳細
+
+- 何が起きたか: #4 でリポジトリ直下に `.mcp.json` を追加した後、`claude mcp get playwright` が `Scope: User config` / `@playwright/mcp@latest` を返した。版を固定したつもりの設定が、このリポジトリで一度も使われていなかった。事前の説明（project が優先）をそのまま信じていれば、版固定が効いていないことに気づかないまま使い続けていた。
+- なぜ起きたか（根本原因）: Claude Code は `.mcp.json` のサーバーを、利用者が承認する（`enabledMcpjsonServers` に入る）まで読み込まない。スコープの優先順位（local > project > user）は**読み込まれた定義どうし**の順位であり、未承認の project 定義は比較の対象にすら入らない。優先順位の説明だけを根拠に「ファイルを置けば効く」と判断し、承認という前段を考慮していなかった。さらに、承認を `.claude/settings.local.json` に書いて検証しようとしたスクラッチパッドは信頼されていないフォルダだったため承認が無視され、「承認しても user が勝つ」と誤った結論に傾きかけた（`--settings` で渡す承認は信頼されていないフォルダでも効く）。
+- 教訓 / 次からどうする:
+  - MCP の設定を追加・変更したら、ファイルの存在ではなく、**クライアントが実際に選んだ定義**を表示して確かめる。Claude Code は `claude mcp get <名前>` の `Scope` と `Args` / `URL`、Copilot CLI は `copilot mcp get <名前>` の `Source` を見る。
+  - 優先順位を説明するときは、その手前の条件（承認・フォルダの信頼・ポリシー）を併記する。Copilot CLI も、信頼していないフォルダでは project の設定を黙って読み飛ばし、アカウントの Copilot ポリシーで外部 MCP を止める。
+  - 承認状態を保存せずに検証するときは `claude --settings '{"enabledMcpjsonServers":["<名前>"]}' mcp get <名前>` を使う。検証用のディレクトリでは `.claude/settings.local.json` の承認が効かないことがある。
+- 関連: #4 / PR #5、#10、README「MCP クライアントから既製のサーバーを使う」、`.claude/rules/quality-gate.md`（検査は壊して確かめる）
+
 <!-- 記入例（実際のエントリを追記する際は、この例より下に残さず先頭へ追加する）
 
 ## YYYY-MM-DD 何が起きたかが一読で分かる一文
