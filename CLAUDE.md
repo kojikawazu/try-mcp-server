@@ -1,6 +1,6 @@
 # try-mcp-server
 
-MCP（Model Context Protocol）サーバーを TypeScript/Node.js で自作して試すためのお試し用リポジトリ。実験は `experiments/` 配下に 1 実験 1 フォルダで置く。
+MCP（Model Context Protocol）を「作る側」（`experiments/` 配下に 1 実験 1 フォルダで自作サーバー）と「使う側」（`.mcp.json` に既製サーバーを登録し、Claude Code / Copilot CLI の両方から使う）の両方から試すお試し用リポジトリ。claude.ai のコネクタやユーザー設定で既に使える MCP でも `.mcp.json` に載せる（判断基準の正本は `docs/01-business-requirements.md` の「主要な決定事項」）。
 
 開発ルールの唯一の正本は `.claude/rules/` です。Claude Code はこのファイルから、Codex は `AGENTS.md` から同じルールを参照します。ルール本文は各入口へ複製しません。
 
