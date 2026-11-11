@@ -4,3 +4,5 @@ dist/
 *.log
 coverage/
 .env
+# Playwright MCP のスナップショット・スクリーンショットの自動出力先
+.playwright-mcp/
