@@ -1,12 +1,14 @@
 # try-mcp-server
 
-MCP（Model Context Protocol）サーバーを TypeScript/Node.js で自作して試すためのお試し用リポジトリ。
+MCP（Model Context Protocol）を「作る側」と「使う側」の両方から、手を動かして理解するためのお試し用リポジトリ。
 
 ## 概要
 
-- MCP の伝送方式（stdio / Streamable HTTP など）・ツール・リソース・プロンプトなどを、小さな実験単位で試す
-- 実験は `experiments/` 配下に **1 実験 1 フォルダ**（`NN-<テーマ>/`）で置き、それぞれが独立して動く
-- 実験の一覧は [experiments/README.md](experiments/README.md) を参照
+- **作る**: MCP サーバーを TypeScript/Node.js で自作し、伝送方式（stdio / Streamable HTTP など）・ツール・リソース・プロンプトなどを小さな実験単位で試す
+  - 実験は `experiments/` 配下に **1 実験 1 フォルダ**（`NN-<テーマ>/`）で置き、それぞれが独立して動く
+  - 実験の一覧は [experiments/README.md](experiments/README.md) を参照
+- **使う**: 既製の MCP サーバーを `.mcp.json` に登録し、Claude Code と GitHub Copilot CLI の両方から同じ設定で動かす（下記「MCP クライアントから既製のサーバーを使う」）
+- claude.ai のコネクタやユーザー設定で既に使える MCP でも、`.mcp.json` に載せる。確かめたいのは「リポジトリの設定だけで、どのクライアントからも再現できるか」であるため。理由の正本は [docs/01-business-requirements.md](docs/01-business-requirements.md#主要な決定事項)
 
 ```text
 .
