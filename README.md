@@ -14,7 +14,7 @@ MCP（Model Context Protocol）を「作る側」と「使う側」の両方か�
 .
 ├── CLAUDE.md / AGENTS.md   AI エージェント向けの入口
 ├── .claude/rules/          開発ルールの正本
-├── .mcp.json               MCP クライアント（Claude Code / Copilot CLI）向けのサーバー設定（Playwright / Atlassian）
+├── .mcp.json               MCP クライアント（Claude Code / Copilot CLI）向けのサーバー設定（Playwright / Atlassian / draw.io）
 ├── docs/                   リポジトリ全体の仕様書（README.md が目次）
 ├── experiments/            MCP サーバーの実験（1 実験 1 フォルダ）
 │   └── 01-echo-stdio/      最初に作った最小構成のサーバー（stdio / echo / 固定リソース）
@@ -55,6 +55,7 @@ npm run client   # 簡易クライアントから echo ツールと example://re
 |---|---|---|---|
 | `playwright` | [Playwright MCP](https://github.com/microsoft/playwright-mcp)（`@playwright/mcp`、版固定） | stdio（手元で `npx` が起動する） | 不要 |
 | `atlassian` | [Atlassian Rovo MCP Server](https://support.atlassian.com/atlassian-rovo-mcp-server/)（Jira / Confluence） | リモート HTTP（`https://mcp.atlassian.com/v2/mcp`） | OAuth（クライアントごとにブラウザでログインする） |
+| `drawio` | [draw.io MCP](https://www.drawio.com/)（図の作成） | リモート HTTP（`https://mcp.draw.io/mcp`） | 不要 |
 
 同じファイルを次の 2 つのクライアントが読む（`<名前>` は上の表の名前）。
 
@@ -66,6 +67,7 @@ npm run client   # 簡易クライアントから echo ツールと example://re
 - **リポジトリに認証情報を書かない。** リモートのサーバーは OAuth でログインし、トークンは各クライアントが利用者ごとに保持する。`.mcp.json` には URL だけを書く。ログインは Claude Code と Copilot CLI で共有されないため、それぞれで行う。
 - Playwright MCP の版を上げるときは `.mcp.json` の `@playwright/mcp@<版>` を書き換える。`@latest` にすると起動のたびに版が変わり、挙動が再現しなくなるため使わない。
 - Playwright MCP のスナップショットやスクリーンショットは `.playwright-mcp/` に出力される（`.gitignore` 済み）。
+- draw.io MCP の `create_diagram` は、図をその場に表示できるクライアント向けのツールである。CLI では図は表示されず、**draw.io エディタで開くリンク**（`https://app.diagrams.net/?...#create=...`）が返る。図の中身はリンクの `#` 以降に圧縮して埋め込まれており、ブラウザで開くとエディタに図が読み込まれる（保存するまでファイルにはならない）。
 - Claude Code で claude.ai の Atlassian コネクタも有効にしている場合、Claude Code はコネクタと `.mcp.json` のサーバーを **URL で同一か判定する**。コネクタが廃止予定の V1（`/v1/mcp`）のままだと別のサーバーとして両方が起動し、同じツールが 2 組並ぶ。コネクタを V2 で接続し直すと、このリポジトリでは `.mcp.json` 側だけが使われる。
 - Copilot CLI で実行するには、GitHub の Copilot 設定（<https://github.com/settings/copilot>）で MCP サーバーの利用が許可されている必要がある。許可されていないと、設定は読まれても `Third-party MCP servers are disabled by your organization's Copilot policy` で実行が拒否される。
 - Codex は `.mcp.json` を読まない（設定の形式が別）。
